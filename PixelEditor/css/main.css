@@ -1,0 +1,20 @@
+.pixel_editor {
+    cursor: default;
+    border: 1px solid #ccc;
+    background: url('../images/trans.png');
+    margin: 0px 5px 5px 5px;
+    float:left;
+}
+
+.color_picker {
+    cursor: default;
+    margin: 0px 5px 5px 5px;
+    float:left;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+
