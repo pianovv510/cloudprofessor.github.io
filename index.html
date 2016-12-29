@@ -232,9 +232,8 @@ function ComposeShareLink (options) {
     var sharelink_id = options.sharelink_id;
 
     // compose the share link
-    var link = location.protocol + "//" + location.hostname + "/" + location.pathname + "?";
+    var link = location.protocol + "//" + location.hostname + location.pathname + "?";
     link = link + "title="+ title;
-    link = link + "&nx=" + num_x;
     link = link + "&nx=" + num_x;
     link = link + "&ny=" + num_y;
 
