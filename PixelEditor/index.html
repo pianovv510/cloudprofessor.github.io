@@ -31,16 +31,16 @@
 Pixel Art Title:<br>
 <textarea id="pixelart_title" rows="1" cols="90" style="font-family:arial;font-size:14px;">My_Pixel_Art</textarea><p>
 Share Link:<br>
-<textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;">Click on pixels to generate link.</textarea>
+<textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;" readonly>Click on pixels to generate link.</textarea>
 </div>
 
 
 
 <script>
-console.log(document.location.href);
-console.log(location.protocol);
-console.log(location.hostname);
-console.log(location);
+//console.log(location.href);
+//console.log(location.protocol);
+//console.log(location.hostname);
+//console.log(location);
 
 // helper function
 // from http://www.webdesignerdepot.com
@@ -55,10 +55,10 @@ function toHex(n) {
 // PixelEditor class
 var PixelEditor = function (options) {
     this.canv       = document.createElement("canvas");
-    this.pixelsize  = options.pixelsize;
-    this.num_x      = options.num_x;
-    this.num_y      = options.num_y;
-    this.pp         = options.pp;
+    this.pixelsize  = Number(options.pixelsize);
+    this.num_x      = Number(options.num_x);
+    this.num_y      = Number(options.num_y);
+    this.pp         = Number(options.pp);
     
     //canv = document.getElementById(options.id);
     var ps = + options.pixelsize;
@@ -69,7 +69,9 @@ var PixelEditor = function (options) {
     canv.options = options;
     canv.options.cx = cx;
     canv.options.cy = cy;
+    canv.PixelEditor= this;
 
+    // canvas style
     canv.setAttribute("id", options.id);
     canv.setAttribute("class",  "pixel_editor");
     canv.setAttribute("width",  cx);
@@ -83,7 +85,17 @@ var PixelEditor = function (options) {
     
     // pixel buffer
     this.pixelbytes = 3; // each pixel has 3-bytes for R, G, B
-    this.pixeldata  = new Uint8ClampedArray (options.num_x * options.num_y * this.pixelbytes);
+    this.pixeldata  = new Uint8ClampedArray (this.num_x * this.num_y * this.pixelbytes);
+
+    // init pixel rects
+    var r_init = 192;
+    var g_init = 192;
+    var b_init = 192;
+    for (var i=0; i<this.num_x * this.num_y * this.pixelbytes; i+=3) {
+        this.pixeldata[i  ] = r_init;
+        this.pixeldata[i+1] = g_init;
+        this.pixeldata[i+2] = b_init;
+    }
 
     canv.pixelbytes = this.pixelbytes;
     canv.pixeldata  = this.pixeldata;
@@ -105,8 +117,24 @@ var PixelEditor = function (options) {
     canv.curB = 200;
     this.setRGB (canv.curR, canv.curG, canv.curB);
     
+    // draw pixel function
+    this.FillPixel = function (x_idx, y_idx, r, g, b) {
+        var pp = this.pp;
+        var ps = this.pixelsize;
+
+        var ctx = canv.getContext ('2d');
+        var rect_x = x_idx * ps + pp;
+        var rect_y = y_idx * ps + pp;
+        
+        ps = ps - pp * 2; // pixel size is reduced by paddings
+        
+        this.setRGB (r, g, b);
+        ctx.fillRect (rect_x, rect_y, ps, ps);
+    }
+
     // render function
-    this.render = function () {
+    this.Render = function () {
+        // draw grids
         var x, y;
         var ctx = this.canv.getContext ('2d');
         
@@ -122,6 +150,18 @@ var PixelEditor = function (options) {
         }
         
         ctx.stroke();
+
+        // draw pixels
+        var i=0, r, g, b;
+        for (y=0; y<canv.options.num_y; y++) {
+            for (x=0; x<canv.options.num_x; x++) {
+                r = this.pixeldata[i++];
+                g = this.pixeldata[i++];
+                b = this.pixeldata[i++];
+
+                this.FillPixel (x, y, r, g, b);
+            }
+        }
     }
     
     // pixel editor canvas click event handler
@@ -132,33 +172,23 @@ var PixelEditor = function (options) {
         if (x >= this.width ) x = this.width  - 1;
         if (y >= this.height) y = this.height - 1;
         
-        //var ps = this.getAttribute("pixelsize");
-        var ps = canv.options.pixelsize;
-        console.log ("ps: " + ps);
         var x_idx = Math.floor (x / ps);
         var y_idx = Math.floor (y / ps);
 
-        //var pp = this.getAttribute("pixelpadding"); // pp: pixel padding
-        var pp = canv.options.pp;
-        pp = Number(pp);
-
-        var ctx = canv.getContext ('2d');
-        var rect_x = x_idx * ps + pp;
-        var rect_y = y_idx * ps + pp;
-        
-        ps = ps - pp * 2; // pixel size is reduced by paddings
-        
-        ctx.fillRect (rect_x, rect_y, ps, ps);
+        var r = this.curR;
+        var g = this.curG;
+        var b = this.curB;
+        this.PixelEditor.FillPixel (x_idx, y_idx, r, g, b);
 
         // record the pixel data
-        var num_x = Number(canv.options.num_x);
-        var num_y = Number(canv.options.num_y);
+        var num_x = canv.options.num_x;
+        var num_y = canv.options.num_y;
 
         var dataIdx = (y_idx * num_x + x_idx) * this.pixelbytes;
 
-        this.pixeldata[dataIdx    ] = this.curR;
-        this.pixeldata[dataIdx + 1] = this.curG;
-        this.pixeldata[dataIdx + 2] = this.curB;
+        this.pixeldata[dataIdx    ] = r;
+        this.pixeldata[dataIdx + 1] = g;
+        this.pixeldata[dataIdx + 2] = b;
 
         // generate sharelink
         var titleElem = document.getElementById(options.title_id);
@@ -256,10 +286,38 @@ function ComposeShareLink (options) {
     console.log(shareElem);
 }
 
-var pe = new PixelEditor({parent_id: 'pe_area', id:"pixel_editor", pixelsize:'50', num_x:'7', num_y:'7', pp:'3', title_id: "pixelart_title", sharelink_id:"sharelink"});
-pe.render();
+var pe_options = {};
+pe_options.parent_id = 'pe_area';
+pe_options.id        = 'pixel_editor';
+pe_options.pixelsize = '50';
+pe_options.num_x     = '7';
+pe_options.num_y     = '7';
+pe_options.pp        = '3';
+pe_options.title_id  = 'pixelart_title';
+pe_options.sharelink_id = 'sharelink';
 
-var cp = new ColorPicker({parent_id: 'cp_area', id:"color_picker", image_src:"images/img_colormap.gif"});
+// parse URL parameters
+if (location.search.length > 0) {
+    var QueryVar = function (paramname)
+    {
+           var q = window.location.search.substring(1);
+           var v = q.split("&");
+           for (var i=0;i<v.length;i++) {
+                   var pair = v[i].split("=");
+                   //if(pair[0] == paramname){return pair[1];}
+                   console.log (pair[0] + ":" + pair[1]);
+           }
+           return (false);
+    }
+
+    QueryVar (location.search);
+}
+
+var pe = new PixelEditor(pe_options);
+//var pe = new PixelEditor({parent_id:'pe_area', id:"pixel_editor", pixelsize:'50', num_x:'7', num_y:'7', pp:'3', title_id: "pixelart_title", sharelink_id:"sharelink"});
+pe.Render();
+
+var cp = new ColorPicker({parent_id:'cp_area', id:"color_picker", image_src:"images/img_colormap.gif"});
 </script>
 
 </body>
