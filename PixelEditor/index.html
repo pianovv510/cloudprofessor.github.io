@@ -88,11 +88,6 @@ var PixelEditor = function (options) {
     canv.pixelbytes = this.pixelbytes;
     canv.pixeldata  = this.pixeldata;
 
-    // init color
-    canv.curR = 0;
-    canv.curG = 0;
-    canv.curB = 0;
-
     // set color function
     this.setRGB = function (r, g, b) {
         var ctx = this.canv.getContext ('2d');
@@ -103,6 +98,12 @@ var PixelEditor = function (options) {
         canv.curB = b;
         //alert (rgbhex_style);
     }
+
+    // init color
+    canv.curR = 200;
+    canv.curG = 200;
+    canv.curB = 200;
+    this.setRGB (canv.curR, canv.curG, canv.curB);
     
     // render function
     this.render = function () {
@@ -232,9 +233,8 @@ function ComposeShareLink (options) {
     var sharelink_id = options.sharelink_id;
 
     // compose the share link
-    var link = location.protocol + "//" + location.pathname + "?";
+    var link = location.protocol + "//" + location.hostname + location.pathname + "?";
     link = link + "title="+ title;
-    link = link + "&nx=" + num_x;
     link = link + "&nx=" + num_x;
     link = link + "&ny=" + num_y;
 
