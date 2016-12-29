@@ -6,23 +6,41 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body>
+<body style="font-family:arial;width:800px">
 
-CPF Pixel Editor
 
-<div id='pe_area'>
+<h1>CPF Pixel Editor</h1>
+
+<div style="float:left">
+    <div id='pe_area' style="float:left"></div>
+
+    <div id='area' style="width:250px;float:left">
+        <div id='cp_area'></div>
+        <center>
+        Click or tap to pick a color<br><br>
+        </center>
+        HEX: <input type="text" id="hex" size="6"></input>
+        RGB: <input type="text" id="rgb" size="10"></input><br>
+        <br>
+
+    </div>
+</div>
+<p>
+<p>
+<div style="float:left">
+Pixel Art Title:<br>
+<textarea id="pixelart_title" rows="1" cols="90" style="font-family:arial;font-size:14px;">My_Pixel_Art</textarea><p>
+Share Link:<br>
+<textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;">Click on pixels to generate link.</textarea>
 </div>
 
-    <div id='cp_area'></div>
 
-    <div id='rgb_value' width='200' style="float:left">
-    <p>
-    Click or tap to pick a color:<br/>
-    HEX: <input type="text" id="hex"></input><br/>
-    RGB: <input type="text" id="rgb"></input><br/>
-    </div>
 
 <script>
+console.log(document.location.href);
+console.log(location.protocol);
+console.log(location.hostname);
+console.log(location);
 
 // helper function
 // from http://www.webdesignerdepot.com
@@ -48,6 +66,10 @@ var PixelEditor = function (options) {
     var cy = ps * options.num_y;
  
     var canv = this.canv;
+    canv.options = options;
+    canv.options.cx = cx;
+    canv.options.cy = cy;
+
     canv.setAttribute("id", options.id);
     canv.setAttribute("class",  "pixel_editor");
     canv.setAttribute("width",  cx);
@@ -55,23 +77,30 @@ var PixelEditor = function (options) {
     canv.setAttribute("margin", 0);
     canv.setAttribute("padding",0);
 
-    // custom attributes
-    canv.setAttribute("pixelsize", ps);
-    canv.setAttribute("num_x", options.num_x);
-    canv.setAttribute("num_y", options.num_y);
-    canv.setAttribute("pixelpadding", options.pp);
-    
     // add the canvas to the parent element
-    var parent = document.getElementById(options.parent_id);
-    parent.appendChild(canv);
+    var parentElem = document.getElementById(options.parent_id);
+    parentElem.appendChild(canv);
     
+    // pixel buffer
+    this.pixelbytes = 3; // each pixel has 3-bytes for R, G, B
+    this.pixeldata  = new Uint8ClampedArray (options.num_x * options.num_y * this.pixelbytes);
+
+    canv.pixelbytes = this.pixelbytes;
+    canv.pixeldata  = this.pixeldata;
+
+    // init color
+    canv.curR = 0;
+    canv.curG = 0;
+    canv.curB = 0;
+
     // set color function
     this.setRGB = function (r, g, b) {
         var ctx = this.canv.getContext ('2d');
-        
-        var rgbhex_style = "#"+rgbToHex (r, g, b);
-        
-        ctx.fillStyle = rgbhex_style;
+        ctx.fillStyle = "#" + rgbToHex (r, g, b);
+
+        canv.curR = r;
+        canv.curG = g;
+        canv.curB = b;
         //alert (rgbhex_style);
     }
     
@@ -94,7 +123,7 @@ var PixelEditor = function (options) {
         ctx.stroke();
     }
     
-    // setup click event handler
+    // pixel editor canvas click event handler
     var eventclick = function (event) {
         var x = event.pageX - this.offsetLeft;
         var y = event.pageY - this.offsetTop;
@@ -102,11 +131,14 @@ var PixelEditor = function (options) {
         if (x >= this.width ) x = this.width  - 1;
         if (y >= this.height) y = this.height - 1;
         
-        var ps = this.getAttribute("pixelsize");
+        //var ps = this.getAttribute("pixelsize");
+        var ps = canv.options.pixelsize;
+        console.log ("ps: " + ps);
         var x_idx = Math.floor (x / ps);
         var y_idx = Math.floor (y / ps);
 
-        var pp = this.getAttribute("pixelpadding"); // pp: pixel padding
+        //var pp = this.getAttribute("pixelpadding"); // pp: pixel padding
+        var pp = canv.options.pp;
         pp = Number(pp);
 
         var ctx = canv.getContext ('2d');
@@ -116,11 +148,31 @@ var PixelEditor = function (options) {
         ps = ps - pp * 2; // pixel size is reduced by paddings
         
         ctx.fillRect (rect_x, rect_y, ps, ps);
+
+        // record the pixel data
+        var num_x = Number(canv.options.num_x);
+        var num_y = Number(canv.options.num_y);
+
+        var dataIdx = (y_idx * num_x + x_idx) * this.pixelbytes;
+
+        this.pixeldata[dataIdx    ] = this.curR;
+        this.pixeldata[dataIdx + 1] = this.curG;
+        this.pixeldata[dataIdx + 2] = this.curB;
+
+        // generate sharelink
+        var titleElem = document.getElementById(options.title_id);
+
+        options.title = titleElem.value;
+        options.pixelbytes = this.pixelbytes;
+        options.num_x = num_x;
+        options.num_y = num_y;
+        options.pixeldata= this.pixeldata;
+        options.sharelink_id = canv.options.sharelink_id;
+        ComposeShareLink (options);
     }
     
     canv.addEventListener ('click', eventclick, false);
 }
-
 
 // setup color picker
 var ColorPicker = function (options) {
@@ -171,9 +223,40 @@ var ColorPicker = function (options) {
     img.src = options.image_src;
 }
 
+function ComposeShareLink (options) {
+    var title = encodeURIComponent(options.title);
+    var pixelbytes = options.pixelbytes;
+    var num_x = options.num_x;
+    var num_y = options.num_y;
+    var pixeldata = options.pixeldata;
+    var sharelink_id = options.sharelink_id;
 
+    // compose the share link
+    var link = location.protocol + "//" + location.pathname + "?";
+    link = link + "title="+ title;
+    link = link + "&nx=" + num_x;
+    link = link + "&nx=" + num_x;
+    link = link + "&ny=" + num_y;
 
-var pe = new PixelEditor({parent_id: 'pe_area', id:"pixel_editor", pixelsize:'50', num_x:'7', num_y:'7', pp:'3'});
+    // append pixel data
+    console.log ("pixelbytes: " + pixelbytes);
+    console.log ("total bytes: " + num_x*num_y*pixelbytes);
+    link = link + "&pd=";
+    for (var i=0; i<num_x*num_y*pixelbytes; i++) {
+
+        link = link + toHex(pixeldata[i]);
+    }
+
+    console.log ("link: "+link);
+
+    //var shareElemId = this.getAttribute ("sharelink_id");
+    var shareElemId = sharelink_id;
+    var shareElem   = document.getElementById(shareElemId);
+    shareElem.value = link;
+    console.log(shareElem);
+}
+
+var pe = new PixelEditor({parent_id: 'pe_area', id:"pixel_editor", pixelsize:'50', num_x:'7', num_y:'7', pp:'3', title_id: "pixelart_title", sharelink_id:"sharelink"});
 pe.render();
 
 var cp = new ColorPicker({parent_id: 'cp_area', id:"color_picker", image_src:"images/img_colormap.gif"});
