@@ -10,18 +10,18 @@ html {
 }
 .editor {
     float: left;
-    padding: 3px;
+    padding: 1px;
     border: 1px;// solid red;
 }
 
 .preview {
     float: left;
-    padding: 3px;
+    padding: 1px;
     border: 1px;// solid red;
 }
 .tools {
     float: left;
-    padding: 3px;
+    padding: 1px;
     border: 1px;// solid red;
 }
 .col-1 {width: 8.33%;}
@@ -53,18 +53,19 @@ html {
     [class*="col-"] {
         width: 100%;
     }
+}
 
 .pixel_editor {
     cursor: default;
     border: 1px solid #ccc;
     background: url('../images/trans.png');
-    margin: 0px 5px 5px 5px;
+    margin: 0px 0px 0px 0px;
     float:left;
 }
 
 .color_picker {
     cursor: default;
-    margin: 0px 5px 5px 5px;
+    margin: 0px 0px 0px 0px;
     float:left;
 }
 
