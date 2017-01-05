@@ -14,33 +14,37 @@
 <h1><a href="?">CPF Pixel Editor</a></h1>
 </div>
 
-    <div id='pe_area' class="editor"></div>
-    <div id='pe_preview_area' class="preview"> </div>
+<div class="row">
+
+    <div id='pe_area' class="editor col-5"></div>
+    <div id='pe_preview_area' class="preview col-1"> </div>
 
 
-    <div id='area' class="tools" >
-
+    <div id='area' class="col-5" class="tools" >
+    <div class="row">
         <div id='cp_area'></div>
+    </div>
 
+    <div class="row">
         <ul style="list-style-type:none">
           <li>Click or tap to pick a color</li>
           <li>HEX: <input type="text" id="hex" size="6"></input></li>
           <li>RGB: <input type="text" id="rgb" size="10"></input><br></li>
         </ul>
     </div>
+</div>
 <p>
 <p>
-<div style="float:left">
 
+<div class="row">
 <!--
 Pixel Art Title:<br>
 <textarea id="pixelart_title" rows="1" cols="90" style="font-family:arial;font-size:14px;">My Pixel Art</textarea><p>
 -->
-
-<br>
-<b>
-Copy this link to share:</b><br>
-<textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;" readonly onclick="this.select()">Click on pixels to generate link.</textarea>
+<div class="col-10">
+<b>Copy this link to share:</b><br>
+<textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;" readonly onclick="this.select();OnShareLinkClick();">Click on pixels to generate link.</textarea>
+</div>
 </div>
 
 
@@ -364,6 +368,14 @@ function ComposeShareLink (options) {
     console.log ("link: "+link);
 
     return link;
+}
+
+function OnShareLinkClick () {
+    console.log ("OnShareLinkClick");
+    var intent = new Intent("http://webintents.org/share", 
+                        "text/uri-list", 
+                        window.location.href);
+    window.navigator.startActivity(intent);
 }
 
 var pe_options = {};
