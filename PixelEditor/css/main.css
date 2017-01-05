@@ -9,20 +9,17 @@ html {
     padding: 1px;
 }
 .editor {
-    width: 50% auto;
     float: left;
     padding: 3px;
     border: 1px;// solid red;
 }
 
 .preview {
-    width: 20% auto;
     float: left;
     padding: 3px;
     border: 1px;// solid red;
 }
 .tools {
-    width: 40% auto;
     float: left;
     padding: 3px;
     border: 1px;// solid red;
@@ -41,14 +38,21 @@ html {
 .col-12 {width: 100%;}
 [class*="col-"] {
     float: left;
-    padding: 15px;
-    border: 1px solid red;
+    padding: 5px;
+    border: 1px;// solid red;
 }
+
 .row::after {
     content: "";
     clear: both;
     display: table;
 }
+
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    [class*="col-"] {
+        width: 100%;
+    }
 
 .pixel_editor {
     cursor: default;
