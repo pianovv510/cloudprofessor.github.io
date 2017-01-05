@@ -64,6 +64,34 @@ function toHex(n) {
   n = Math.max(0,Math.min(n,255));return "0123456789ABCDEF".charAt((n-n%16)/16) + "0123456789ABCDEF".charAt(n%16);
 }
 
+// create hi-dpi canvas
+// from http://stackoverflow.com/questions/15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
+var PIXEL_RATIO = (function () {
+    var ctx = document.createElement("canvas").getContext("2d"),
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+})();
+
+
+createHiDPICanvas = function(w, h, ratio) {
+    if (!ratio) { ratio = PIXEL_RATIO; }
+    var can = document.createElement("canvas");
+    can.width = w * ratio;
+    can.height = h * ratio;
+    can.style.width = w + "px";
+    can.style.height = h + "px";
+    can.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    console.log ("can.width: " + can.width + "      can.height: " + can.height);
+    console.log ("can.style.width: " + can.style.width + "      can.style.height: " + can.style.height);
+    return can;
+}
 
 // PixelEditor class
 var PixelEditor = function (options) {
@@ -120,14 +148,18 @@ var PixelEditor = function (options) {
         }
     }
 
-    this.canv       = document.createElement("canvas");
+    //this.canv       = document.createElement("canvas");
+    var ps = + options.pixelsize;
+    var cx = ps * options.num_x;
+    var cy = ps * options.num_y;
+    this.canv       = createHiDPICanvas (cx, cy);  console.log ("cx: " + cx + "      cy: " + cy);
     this.pixelsize  = Number(options.pixelsize);
     this.pp         = Number(options.pp);
     
     //canv = document.getElementById(options.id);
-    var ps = + options.pixelsize;
-    var cx = ps * options.num_x;
-    var cy = ps * options.num_y;
+    //var ps = + options.pixelsize;
+    //var cx = ps * options.num_x;
+    //var cy = ps * options.num_y;
  
     var canv = this.canv;
     canv.options = options;
@@ -138,8 +170,8 @@ var PixelEditor = function (options) {
     // canvas style
     canv.setAttribute("id", options.id);
     canv.setAttribute("class",  "pixel_editor");
-    canv.setAttribute("width",  cx+"dp");
-    canv.setAttribute("height", cy+"dp");
+    //canv.setAttribute("width",  cx+"dp");
+    //canv.setAttribute("height", cy+"dp");
     canv.setAttribute("margin", 0);
     canv.setAttribute("padding",0);
 
@@ -381,7 +413,7 @@ function OnShareLinkClick () {
 var pe_options = {};
 pe_options.parent_id = 'pe_area';
 pe_options.id        = 'pixel_editor';
-pe_options.pixelsize = '50';
+pe_options.pixelsize = '40';
 pe_options.num_x     = '7';
 pe_options.num_y     = '7';
 pe_options.pp        = '3';
