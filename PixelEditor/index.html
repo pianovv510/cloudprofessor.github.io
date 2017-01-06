@@ -14,39 +14,28 @@
 <h1><a href="?">CPF Pixel Editor</a></h1>
 </div>
 
-<div class="row">
-<div class='col-7'>
-    <div class="row">
-        <div id='pe_area' class="editor col-10"></div>
-        <div id='pe_preview_area' class="preview col-2"> </div>
-    </div>
-</div>
+        <div id='pe_area' class='pe_block'></div>
+        <div id='pe_preview_area' class='pe_preview_block'> </div>
 
-    <div id='area' class="col-5" class="tools" >
-    <div class="row">
+    <div id='area' class="cp_block">
         <div id='cp_area'></div>
-    </div>
-
-    <div class="row">
-        <ul style="list-style-type:none">
+        <ul style="list-style-type:none" class="block">
+          <li><div id='cp_area'></div></li>
           <li>Click or tap to pick a color</li>
           <li>HEX: <input type="text" id="hex" size="6"></input></li>
           <li>RGB: <input type="text" id="rgb" size="10"></input><br></li>
         </ul>
     </div>
-</div>
 <p>
 <p>
 
-<div class="row">
+<div class="sharelink_block">
 <!--
 Pixel Art Title:<br>
 <textarea id="pixelart_title" rows="1" cols="90" style="font-family:arial;font-size:14px;">My Pixel Art</textarea><p>
 -->
-<div class="col-10">
 <b>Copy this link to share:</b><br>
 <textarea id="sharelink" rows="6" cols="90" style="font-family:arial;font-size:14px;" readonly onclick="this.select();OnShareLinkClick();">Click on pixels to generate link.</textarea>
-</div>
 </div>
 
 
