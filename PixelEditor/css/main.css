@@ -29,7 +29,7 @@ table, th, td {
     padding: 2px;
     max-width: 350px;
     height: 100px auto;
-    border: 1px;// solid black;
+    border: 1px solid black;
 } 
 
 .cp_block {
