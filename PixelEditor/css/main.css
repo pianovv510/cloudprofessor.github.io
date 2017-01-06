@@ -20,7 +20,7 @@ table, th, td {
     padding: 2px;
     max-width: 350px;
     height: 350px auto;
-    border: 1px solid black;
+    border: 1px;// solid black;
 } 
 
 .pe_preview_block {
@@ -29,7 +29,7 @@ table, th, td {
     padding: 2px;
     max-width: 350px;
     height: 100px auto;
-    border: 1px solid black;
+    border: 1px;// solid black;
 } 
 
 .cp_block {
@@ -38,7 +38,7 @@ table, th, td {
     padding: 2px;
     max-width: 300px;
     height: 350px auto;
-    border: 1px solid black;
+    border: 1px;// solid black;
 } 
 
 .sharelink_block {
@@ -47,5 +47,5 @@ table, th, td {
     padding: 2px;
     max-width: 600px;
     height: 250px auto;
-    border: 1px solid black; // changes
+    border: 1px;// solid black;
 } 
